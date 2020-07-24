@@ -5,6 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.Animation;
@@ -28,15 +32,35 @@ public class MainActivity extends AppCompatActivity {
     //variables
     private int stageCount = 1;
     private int statsCount = 0;
+    private SoundPool soundPool;
+    private int sound1, sound2, sound3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         views();
+        sounds();
         clickListeners();
 
+    }
+
+    private void sounds() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build();
+            soundPool = new SoundPool.Builder()
+                    .setMaxStreams(3)
+                    .setAudioAttributes(audioAttributes)
+                    .build();
+        } else {
+            soundPool = new SoundPool(6, AudioManager.STREAM_MUSIC, 0);
+        }
+        sound1 = soundPool.load(this, R.raw.eggcrack, 1);
+        sound2 = soundPool.load(this, R.raw.eat, 1);
+        sound3 = soundPool.load(this, R.raw.burp, 1);
     }
 
     private void clickListeners() {
@@ -63,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.button:
                     if (mButtonText.getText().equals(getString(R.string.play))){
                         setVisiblity();
+                        playSound(sound1);
                         mButtonText.setText(getString(R.string.feed));
                         mButtonIcon.setImageDrawable(getResources().getDrawable(R.drawable.redapple));
                     }
@@ -70,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
                         increment();
                     }
                     else if (mButtonText.getText().equals(getString(R.string.playagain))){
+                        playSound(sound1);
                         restart();
                     }
                     break;
@@ -84,8 +110,7 @@ public class MainActivity extends AppCompatActivity {
         mDinoImage.setFactory(new ViewSwitcher.ViewFactory() {
             @Override
             public View makeView() {
-                ImageView view = new ImageView(MainActivity.this);
-                return view;
+                return new ImageView(MainActivity.this);
             }
         });
         mDinoImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_stage1));
@@ -107,24 +132,28 @@ public class MainActivity extends AppCompatActivity {
     private void increment() {
         setStats(++statsCount);
         if (statsCount == 5){
+            playSound(sound3);
             setStage(++stageCount);
             switchImage();
             mDinoImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_stage2));
             return;
         }
         else if (statsCount == 10){
+            playSound(sound3);
             setStage(++stageCount);
             switchImage();
             mDinoImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_stage3));
             return;
         }
         else if (statsCount == 15){
+            playSound(sound3);
             setStage(++stageCount);
             switchImage();
             mDinoImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_stage4));
             return;
         }
         else if (statsCount == 20){
+            playSound(sound3);
             setStage(++stageCount);
             switchImage();
             mDinoImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_stage5));
@@ -132,8 +161,14 @@ public class MainActivity extends AppCompatActivity {
             mButtonIcon.setImageDrawable(getResources().getDrawable(R.drawable.videogame));
             return;
         }
+        playSound(sound2);
         animateView(mDinoImage);
 
+    }
+
+    private void playSound(int sound){
+        soundPool.play(sound, 1, 1, 0, 0, 1);
+        soundPool.autoPause();
     }
 
     private void switchImage() {
@@ -174,5 +209,12 @@ public class MainActivity extends AppCompatActivity {
         set.playSequentially(animator1, animator2);
         set.start();
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        soundPool.release();
+        soundPool = null;
     }
 }
