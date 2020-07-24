@@ -168,7 +168,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void playSound(int sound){
         soundPool.play(sound, 1, 1, 0, 0, 1);
-        soundPool.autoPause();
     }
 
     private void switchImage() {
