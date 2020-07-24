@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Alemeno</string>
+    <string name="stage">Stage </string>
+    <string name="Title">Meet Dyno, your new pet!</string>
+    <string name="subheading">You need to feed him 5 apples to help him get to the next stage.</string>
+    <string name="feed">Feed apple</string>
+    <string name="stats">Total apples eaten: </string>
+    <string name="play">Play</string>
+    <string name="playagain">Play Again</string>
+</resources>
